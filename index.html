@@ -356,7 +356,7 @@ const views = {
     <div class="card"><h2 class="serif" style="font-size:20px">자동 분석</h2><ul class="msg" style="padding:0">${analysis().map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>`;
   },
   '/settings'(){
-    const st=S.settings, demoN=S.items.filter(i=>i.demo).length;
+    const st=S.settings;
     return title('Settings','나에게 맞게 조정하기')+`
     <div class="card"><h2 class="serif" style="font-size:20px">계정</h2><div class="muted" style="font-size:14px">이 브라우저에만 저장되는 개인용 기록이에요. 로그인은 필요 없어요.</div></div>
     <h3 class="grp">화면</h3>
@@ -370,8 +370,7 @@ const views = {
     <div class="card"><h2 class="serif" style="font-size:20px">백업</h2><div class="muted" style="line-height:1.6;margin-bottom:14px">기록은 이 기기에만 저장돼요. 백업 파일을 저장해 두면 기기를 바꾸거나 브라우저 데이터를 지워도 되살릴 수 있어요. 폰과 PC 사이에 기록을 옮길 때도 이 파일을 써요.</div>
       <div class="row"><button class="btn primary" data-act="backup" style="flex:1 1 calc(50% - 8px)">${svg('dl')}백업 파일 저장</button><button class="btn ghost" data-act="restore" style="flex:1 1 calc(50% - 8px)">${svg('up')}백업 불러오기</button></div>
       <input type="file" id="bfile" accept=".json,application/json" hidden>
-      <div class="muted" style="margin-top:12px">${st.lastBackup?`마지막 백업: ${fmtD(st.lastBackup)}`:'아직 백업한 적이 없어요.'}</div></div>
-    <div class="card"><h2 class="serif" style="font-size:20px">데이터</h2><div class="row"><button class="btn ghost" data-act="csv" style="flex:1">${svg('dl')}CSV로 내보내기</button><button class="btn ghost" data-act="demo" style="flex:1" ${demoN?'':'disabled'}>${svg('trash')}가상 데이터 제거${demoN?` (${demoN})`:''}</button></div></div>`;
+      <div class="muted" style="margin-top:12px">${st.lastBackup?`마지막 백업: ${fmtD(st.lastBackup)}`:'아직 백업한 적이 없어요.'}</div></div>`;
   }
 };
 function histList(dec,l){
@@ -508,8 +507,6 @@ document.addEventListener('click',e=>{
   else if(a==='perm'){ try{ Promise.resolve(Notification.requestPermission()).then(()=>render()); }catch(e){ toast('알림을 켜지 못했어요.'); } }
   else if(a==='notify'){ S.settings.notify=!S.settings.notify; save(); render(); }
   else if(a==='goal'){ S.settings.goal=num($('#goal').value); save(); toast(S.settings.goal?'월간 소비 목표를 저장했어요.':'월간 소비 목표를 해제했어요.'); render(); }
-  else if(a==='demo') confirmBox('가상 데이터 제거','처음에 들어 있던 샘플 상품과 기록을 모두 지워요. 직접 등록한 데이터는 그대로 남아요.','제거',()=>{ snap(); S.items=S.items.filter(i=>!i.demo); save(); render(); toast('가상 데이터를 제거했어요.',true); });
-  else if(a==='csv') exportCsv();
 });
 document.addEventListener('input',e=>{
   if(e.target.id==='q'){ ui.q=e.target.value; const dec=S.items.filter(i=>i.status!=='waiting'), kw=ui.q.trim().toLowerCase();
@@ -517,14 +514,6 @@ document.addEventListener('input',e=>{
     $('#hlist').innerHTML=histList(dec,l); }
   if(e.target.id==='goal'){ const n=num(e.target.value); e.target.value=n?n.toLocaleString('ko-KR'):''; }
 });
-function exportCsv(){
-  if(!S.items.length) return toast('내보낼 데이터가 없어요.');
-  const q=v=>`"${String(v).replace(/"/g,'""')}"`, lab={waiting:'고민 중',buy:'BUY',bye:'BYE'};
-  const rows=[['상품명','가격','상태','등록일시','고민종료일시','결정일시','구매완료'],...S.items.map(i=>[i.name,i.price,lab[i.status],fmtD(i.created),fmtD(i.ends),fmtD(i.decided),i.status==='buy'?(i.bought?'완료':'미완료'):''])];
-  const blob=new Blob(['﻿'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`buy-or-bye-${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(a.href);
-}
-
 /* ===== 1초마다: 남은 시간 갱신 / 고민 종료 감지 ===== */
 setInterval(()=>{
   const n=Date.now();
