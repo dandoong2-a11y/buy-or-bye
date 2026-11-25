@@ -18,7 +18,6 @@ self.addEventListener('fetch', e => {
   const r = e.request;
   if (r.method !== 'GET') return;
   const u = new URL(r.url);
-  if (u.hostname.endsWith('supabase.co')) return; // 동기화 요청은 건드리지 않아요
 
   // 페이지: 인터넷이 되면 항상 최신, 안 되면 저장된 것
   if (r.mode === 'navigate') {
