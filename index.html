@@ -3,6 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BUY or BYE">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>BUY or BYE?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -357,7 +364,8 @@ const views = {
     <div class="card"><h2 class="serif" style="font-size:20px">계정</h2><div class="muted" style="font-size:14px">이 브라우저에만 저장되는 개인용 기록이에요. 로그인은 필요 없어요.</div></div>
     <div class="card"><h2 class="serif" style="font-size:20px">테마</h2><div class="row">${THEMES.map(([id,n,c])=>`<button class="chip ${(st.theme||'sky')===id?'on':''}" data-act="theme" data-v="${id}" style="display:inline-flex;align-items:center;gap:8px"><span style="display:inline-flex">${c.map((x,k)=>`<i style="width:14px;height:14px;border-radius:50%;background:${x};border:1px solid rgba(0,0,0,.12);margin-left:${k?-4:0}px"></i>`).join('')}</span>${n}</button>`).join('')}</div><div class="muted" style="margin-top:12px">고른 색은 이 기기에 저장돼요. 기기 동기화를 켜면 다른 기기에도 같이 적용돼요.</div></div>
     <div class="card"><h2 class="serif" style="font-size:20px">기본 고민 기간</h2><div class="row">${[24,48,72].map(h=>`<button class="chip ${st.hours===h?'on':''}" style="flex:1" data-act="hours" data-v="${h}">${h}시간</button>`).join('')}</div><div class="muted" style="margin-top:12px">새로 등록하는 상품부터 적용돼요.</div></div>
-    <div class="card"><h2 class="serif" style="font-size:20px">고민 종료 알림</h2><div class="between" style="align-items:center"><span style="font-size:14px">고민이 끝나면 화면 안에서 알려주기</span><button class="switch ${st.notify?'on':''}" role="switch" aria-checked="${st.notify}" data-act="notify"></button></div></div>
+    <div class="card"><h2 class="serif" style="font-size:20px">고민 종료 알림</h2><div class="between" style="align-items:center"><span style="font-size:14px">고민이 끝나면 화면 안에서 알려주기</span><button class="switch ${st.notify?'on':''}" role="switch" aria-checked="${st.notify}" data-act="notify"></button></div>
+      <div class="between muted" style="margin-top:14px;align-items:center;line-height:1.6"><span style="flex:1;min-width:200px">${permText()}</span>${'Notification' in window&&Notification.permission==='default'?'<button class="btn ghost" data-act="perm">기기 알림 켜기</button>':''}</div></div>
     <div class="card"><h2 class="serif" style="font-size:20px">월간 소비 목표</h2><div class="row" style="flex-wrap:nowrap"><input type="text" id="goal" inputmode="numeric" placeholder="0" value="${st.goal?st.goal.toLocaleString('ko-KR'):''}"><button class="btn primary" data-act="goal">저장</button></div><div class="muted" style="margin-top:12px">0 또는 빈칸으로 저장하면 목표가 해제돼요.</div></div>
     <div class="card"><h2 class="serif" style="font-size:20px">기기 동기화</h2>
       ${sync?`<div style="font-size:14px;line-height:1.7">연결됨 · 코드 <b style="word-break:break-all">${esc(sync.code)}</b></div><div class="muted" id="syncst" style="margin:6px 0 14px">${esc(syncMsg)}</div><div class="muted" style="margin-bottom:14px">다른 기기에서 같은 주소·키·코드를 입력하면 같은 기록을 볼 수 있어요.</div><button class="btn ghost" data-act="syncoff">동기화 해제</button>`
@@ -377,12 +385,59 @@ function histList(dec,l){
   <div class="between muted" style="margin-top:12px;align-items:center"><span>등록 ${fmtD(i.created)} · 결정 ${fmtD(i.decided)}</span>${i.status==='buy'?`<button class="chip ${i.bought?'on':''}" style="padding:6px 12px;font-size:12px" data-act="bought" data-id="${i.id}">${i.bought?'구매 완료':'구매 완료로 기록'}</button>`:''}</div></div>`).join('');
 }
 
+/* ===== 주소 하나로 정리: github.io 는 예전 주소, 기록을 들고 새 주소로 이사 ===== */
+const NEW_URL='https://buy-or-bye.vercel.app/';
+const isOldHost=()=>/github\.io$/.test(location.hostname);
+function oldBanner(){
+  if(!isOldHost()) return '';
+  return `<div class="card" style="background:var(--sky);margin-bottom:20px"><div style="font-weight:700;margin-bottom:6px">새 주소로 이사했어요</div><div style="font-size:14px;line-height:1.6;margin-bottom:14px">이 주소는 예전 주소예요. 앞으로는 <b>buy-or-bye.vercel.app</b> 을 써 주세요. 버튼을 누르면 지금 기록을 그대로 가져가요.</div><button class="btn primary" data-act="move">기록 가져가며 이동</button></div>`;
+}
+function moveToNew(){
+  const b64=btoa(unescape(encodeURIComponent(JSON.stringify({items:S.items,settings:S.settings}))));
+  location.href=NEW_URL+'#move='+b64;
+}
+function checkMove(){
+  const m=location.hash.match(/^#move=(.+)$/); if(!m) return;
+  history.replaceState(null,'',location.pathname+location.search); // 주소에서 기록 데이터 지우기
+  try{
+    const d=JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+    if(!d||!Array.isArray(d.items)) throw new Error('bad');
+    const mine=S.items.filter(i=>!i.demo).length;
+    const go=()=>{ snap(); S.items=d.items; S.settings={...S.settings,...(d.settings||{})}; save(); render(); toast(`기록 ${d.items.length}건을 가져왔어요.`,true); };
+    if(!mine) go();
+    else confirmBox('이전 주소의 기록 가져오기',`이전 주소의 기록 ${d.items.length}건을 가져올까요? 지금 이 주소의 기록(${mine}건)은 대체돼요. 가져온 뒤에도 되돌리기로 취소할 수 있어요.`,'가져오기',go,false);
+  }catch(e){ toast('기록을 가져오지 못했어요. 이전 주소에서 다시 시도해 주세요.'); }
+}
+
+/* ===== 기기 알림 / 앱 배지 ===== */
+function updateBadge(){
+  const n=S.items.filter(isReady).length;
+  document.title=(n?`(${n}) `:'')+'BUY or BYE?';
+  try{ if(navigator.setAppBadge){ if(n) navigator.setAppBadge(n).catch(()=>{}); else navigator.clearAppBadge().catch(()=>{}); } }catch(e){}
+}
+function notifyDevice(list){
+  if(!S.settings.notify||!('Notification' in window)||Notification.permission!=='granted') return;
+  const body=list.length===1?`'${list[0].name}'의 고민이 끝났어요. 이제 결정해 볼까요?`:`${list.length}개 상품의 고민이 끝났어요. 결정할 시간이에요.`;
+  const opts={body,icon:'icon-192.png',badge:'icon-192.png',tag:'ready'};
+  const fallback=()=>{ try{ new Notification('BUY or BYE?',opts); }catch(e){} };
+  if(navigator.serviceWorker&&navigator.serviceWorker.getRegistration){
+    navigator.serviceWorker.getRegistration().then(r=>r?r.showNotification('BUY or BYE?',opts):fallback()).catch(fallback);
+  } else fallback();
+}
+function permText(){
+  if(!('Notification' in window)) return '이 브라우저는 기기 알림을 지원하지 않아요.';
+  if(Notification.permission==='granted') return '기기 알림이 켜져 있어요. 앱이나 탭이 열려 있는 동안 화면 밖에서도 알려줘요.';
+  if(Notification.permission==='denied') return '브라우저 설정에서 이 사이트의 알림이 차단돼 있어요. 설정에서 허용으로 바꿔 주세요.';
+  return '기기 알림을 켜면 고민이 끝났을 때 다른 앱을 보고 있어도 알려줘요. (앱이나 탭이 열려 있을 때만 동작해요. 아이폰은 홈 화면에 추가한 앱에서만 가능해요.)';
+}
+
 function route(){ return (location.hash.slice(1)||'/'); }
 function render(){
   applyTheme();
   const r=views[route()]?route():'/';
   $('#view').style.animation='none'; void $('#view').offsetWidth; $('#view').style.animation='';
-  $('#view').innerHTML=views[r]();
+  $('#view').innerHTML=oldBanner()+views[r]();
+  updateBadge();
   const rd=S.items.filter(isReady).length;
   $('#side').innerHTML=NAV.map(([k,h,t])=>`<a href="#${h}" class="${h===r?'on':''}">${svg(k)}${t}${h==='/wait'&&rd?`<span class="dot">${rd}</span>`:''}</a>`).join('');
   $('#tabbar').innerHTML=NAV.map(([k,h,t])=>`<a href="#${h}" class="${h===r?'on':''}">${svg(k)}${t}</a>`).join('');
@@ -453,6 +508,8 @@ document.addEventListener('click',e=>{
   else if(a==='set'){ ui[b.dataset.g]=b.dataset.v; render(); }
   else if(a==='theme'){ S.settings.theme=b.dataset.v; save(); render(); }
   else if(a==='hours'){ S.settings.hours=+b.dataset.v; save(); render(); }
+  else if(a==='move') moveToNew();
+  else if(a==='perm'){ try{ Promise.resolve(Notification.requestPermission()).then(()=>render()); }catch(e){ toast('알림을 켜지 못했어요.'); } }
   else if(a==='notify'){ S.settings.notify=!S.settings.notify; save(); render(); }
   else if(a==='goal'){ S.settings.goal=num($('#goal').value); save(); toast(S.settings.goal?'월간 소비 목표를 저장했어요.':'월간 소비 목표를 해제했어요.'); render(); }
   else if(a==='demo') confirmBox('가상 데이터 제거','처음에 들어 있던 샘플 상품과 기록을 모두 지워요. 직접 등록한 데이터는 그대로 남아요.','제거',()=>{ snap(); S.items=S.items.filter(i=>!i.demo); save(); render(); toast('가상 데이터를 제거했어요.',true); });
@@ -481,12 +538,16 @@ setInterval(()=>{
   if(fresh.length){
     S.notified=[...(S.notified||[]),...fresh.map(i=>i.id)]; save();
     if(S.settings.notify) toast(fresh.length===1?`'${fresh[0].name}'의 고민이 끝났어요. 이제 결정해 볼까요?`:`${fresh.length}개 상품의 고민이 끝났어요. 결정할 시간이에요.`);
+    notifyDevice(fresh);
+    updateBadge();
     if(!$('#modal').classList.contains('show') && document.activeElement.tagName!=='INPUT') render();
   }
 },1000);
 
 render();
+checkMove();
 pull();
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(()=>{});
 setInterval(pull,20000);
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) pull(); });
 </script>
