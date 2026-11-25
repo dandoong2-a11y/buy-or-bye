@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BUY or BYE?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--sky:#BDD8F2;--sky-soft:#E3EFFA;--sky-deep:#8FB8E0;--ivory:#FAF8F2;--ivory-d:#F1EEE4;--blush:#F2DCE5;--blush-d:#E6BCCD;--navy:#303D4B;--soft:#6B7785;--line:#E4E1D8;--red:#B8576E}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--ivory);color:var(--navy);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input{font:inherit;color:inherit}
+.serif{font-family:'Cormorant Garamond',Georgia,serif}
+svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+/* 레이아웃 */
+aside{position:fixed;inset:0 auto 0 0;width:240px;padding:36px 22px;border-right:1px solid var(--line);display:flex;flex-direction:column}
+.logo{font-size:26px;font-weight:600;line-height:1}
+.tag{margin:8px 0 36px;font-size:14px;font-style:italic;color:var(--soft)}
+nav{display:flex;flex-direction:column;gap:4px;flex:1}
+nav a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:16px;color:var(--soft);text-decoration:none;font-size:15px;transition:.2s}
+nav a:hover{background:var(--ivory-d);color:var(--navy)}
+nav a.on{background:var(--sky-soft);color:var(--navy);font-weight:500}
+nav .dot{margin-left:auto;background:var(--blush-d);border-radius:99px;font-size:12px;padding:1px 8px;color:var(--navy)}
+main{margin-left:240px;max-width:880px;padding:48px 40px 80px;animation:up .45s ease both}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+#tabbar,#fab{display:none}
+
+/* 공통 */
+h1{font-size:40px;font-weight:600;letter-spacing:-.01em;line-height:1.15}
+.sub{color:var(--soft);font-size:14px;margin:6px 0 28px}
+h2{font-size:24px;font-weight:600;margin-bottom:16px}
+.card{background:#fff;border:1px solid rgba(228,225,216,.7);border-radius:24px;box-shadow:0 8px 30px rgba(48,61,75,.07);padding:22px;margin-bottom:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:16px;font-size:14px;font-weight:700;letter-spacing:.03em;transition:.2s;border:1px solid transparent}
+.btn:active{transform:scale(.95)}
+.btn:disabled{opacity:.45;pointer-events:none}
+.primary{background:var(--navy);color:var(--ivory)}.primary:hover{box-shadow:0 8px 20px rgba(48,61,75,.2)}
+.accent{background:var(--blush)}.accent:hover{background:var(--blush-d)}
+.ghost{background:#fff;border-color:var(--line)}.ghost:hover{border-color:rgba(48,61,75,.4)}
+.danger{background:var(--red);color:#fff}
+.icon{width:36px;height:36px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--soft);transition:.2s}
+.icon:hover{background:var(--ivory-d);color:var(--navy)}
+.chip{padding:8px 16px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:14px;transition:.2s}
+.chip.on{background:var(--navy);color:var(--ivory);border-color:var(--navy)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.between{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.between>div:first-child{min-width:0}
+.ell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card,.hero,.price,.big{overflow-wrap:anywhere}
+html{-webkit-text-size-adjust:100%}
+.pill{font-size:11px;font-weight:700;letter-spacing:.08em;padding:3px 10px;border-radius:99px}
+.pill.buy{background:var(--sky)}.pill.bye{background:var(--blush)}
+.muted{color:var(--soft);font-size:12px}
+.price{font-size:22px;font-weight:600}
+.bar{height:6px;background:var(--sky-soft);border-radius:99px;overflow:hidden;margin-top:14px}
+.bar i{display:block;height:100%;background:var(--sky-deep);border-radius:99px;transition:width .7s}
+.bar.ready i{background:var(--blush-d)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hero{background:var(--sky);padding:36px;border-radius:28px;margin-bottom:12px}
+.hero .big{font-size:64px;font-weight:600;margin:10px 0}
+.empty{text-align:center;padding:48px 20px;color:var(--soft);font-size:14px}
+.empty b{display:block;font-size:20px;color:var(--navy);margin-bottom:6px;font-family:'Cormorant Garamond',serif}
+input[type=text],input[type=search]{width:100%;padding:12px 16px;border-radius:16px;border:1px solid var(--line);background:#fff;font-size:16px;-webkit-appearance:none;appearance:none;outline:none;transition:.2s}
+input:focus{border-color:var(--sky-deep);box-shadow:0 0 0 3px var(--sky)}
+input.bad{border-color:var(--red)}
+label.l{display:block;font-size:14px;font-weight:500;margin:0 0 8px}
+.err{color:var(--red);font-size:12px;margin-top:6px;min-height:0}
+.field{margin-bottom:18px}
+
+/* 모달 */
+#modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(48,61,75,.4);padding:16px;overflow-y:auto}
+#modal.show{display:flex;animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+.sheet{background:var(--ivory);border-radius:32px;padding:28px;width:100%;max-width:420px;max-height:calc(100dvh - 32px);overflow-y:auto;margin:auto;animation:pop .3s cubic-bezier(.2,.8,.2,1);box-shadow:0 20px 60px rgba(48,61,75,.2)}
+.sheet h2{margin-bottom:20px}
+
+/* 토스트 */
+#toast{position:fixed;top:calc(16px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:100;display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:calc(100vw - 32px);pointer-events:none}
+.tundo{color:var(--sky);font-weight:700;text-decoration:underline;white-space:nowrap;padding:4px 2px}
+.undo{display:none}
+.undo.show{display:inline-flex}
+#undoFab{display:none!important}
+#toast div{display:flex;gap:14px;align-items:center;pointer-events:auto;max-width:100%;line-height:1.5;background:var(--navy);color:var(--ivory);padding:12px 18px;border-radius:16px;font-size:14px;animation:pop .3s;box-shadow:0 20px 60px rgba(48,61,75,.2)}
+
+/* 통계 */
+.chart{display:flex;align-items:flex-end;gap:8px;height:170px;margin-top:10px;border-bottom:1px solid var(--line)}
+.chart .col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.chart .pair{display:flex;align-items:flex-end;gap:3px;height:100%;width:100%;justify-content:center}
+.chart .pair i{width:38%;max-width:22px;border-radius:6px 6px 0 0;min-height:2px;transition:height .6s}
+.labels{display:flex;gap:8px;margin-top:6px}.labels span{flex:1;text-align:center;font-size:12px;color:var(--soft)}
+.donut{width:130px;height:130px;border-radius:50%;margin:0 auto 12px;position:relative}
+.donut:after{content:"";position:absolute;inset:26px;background:#fff;border-radius:50%}
+.msg li{list-style:none;display:flex;gap:12px;font-size:15px;line-height:1.6;margin-bottom:10px}
+.msg li:before{content:"";width:16px;height:1px;background:rgba(48,61,75,.4);margin-top:12px;flex-shrink:0}
+.switch{width:48px;height:28px;border-radius:99px;background:var(--line);position:relative;transition:.2s;flex-shrink:0}
+.switch:after{content:"";position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.switch.on{background:var(--navy)}.switch.on:after{left:24px}
+
+/* 모바일 */
+@media(max-width:760px){
+ aside{display:none}
+ main{margin:0;padding:calc(28px + env(safe-area-inset-top)) 18px 130px}
+ h1{font-size:34px}.hero{padding:24px}.hero .big{font-size:clamp(30px,10vw,44px)}
+ .card{padding:18px}.price{font-size:20px}
+ .icon{width:44px;height:44px}.chip{padding:10px 16px}
+ .sheet{padding:24px;border-radius:28px}
+ #fab{right:calc(18px + env(safe-area-inset-right))}
+ #tabbar a{padding:10px 0;min-height:56px;justify-content:center}
+ #tabbar{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:30;background:rgba(250,248,242,.96);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);backdrop-filter:blur(8px)}
+ #tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 0;font-size:11px;color:var(--soft);text-decoration:none}
+ #tabbar a.on{color:var(--navy);font-weight:700}
+ #fab{display:flex;position:fixed;right:18px;bottom:84px;z-index:30;width:56px;height:56px;border-radius:50%;padding:0;box-shadow:0 20px 40px rgba(48,61,75,.25)}
+ #fab svg{width:24px;height:24px}
+ #undoFab{position:fixed;right:calc(18px + env(safe-area-inset-right));bottom:152px;z-index:30;width:56px;height:56px;border-radius:50%;padding:0;box-shadow:0 12px 30px rgba(48,61,75,.18)}
+ #undoFab.show{display:flex!important}
+ .grid2.keep{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<aside>
+  <div class="logo serif">BUY or BYE?</div>
+  <div class="tag serif">Buy less, choose better.</div>
+  <nav id="side"></nav>
+  <button class="btn ghost undo" data-act="undo" style="margin-bottom:10px"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3"/></svg>되돌리기</button>
+  <button class="btn primary" data-act="add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>상품 등록</button>
+</aside>
+<main id="view"></main>
+<div id="tabbar"></div>
+<button id="fab" class="btn primary" data-act="add" aria-label="상품 등록"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+<button id="undoFab" class="btn ghost undo" data-act="undo" aria-label="되돌리기"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3"/></svg></button>
+<div id="modal"></div>
+<div id="toast"></div>
+
+<script>
+/* ===== 데이터 저장 (이 브라우저의 localStorage) ===== */
+const KEY = 'buy-or-bye-v1', H = 3600000, DAY = 86400000;
+let S = load();
+function load(){
+  try{ const d = JSON.parse(localStorage.getItem(KEY));
+    if(d && d.items){ // 예전에 저장된 예시가 여러 개면 하나만 남김
+      let kept=false; d.items=d.items.filter(i=>{ if(!i.demo) return true; if(kept) return false; kept=true; return true; });
+      return {settings:{hours:72,notify:true,goal:0},...d}; } }catch(e){}
+  return {items:demo(), settings:{hours:72,notify:true,goal:0}, notified:[]};
+}
+function save(){ S.updated=Date.now(); localStorage.setItem(KEY, JSON.stringify(S)); schedulePush(); }
+
+/* ===== 기기 간 동기화 (선택, Supabase) ===== */
+const SYNC_KEY='buy-or-bye-sync';
+let sync=null; try{ sync=JSON.parse(localStorage.getItem(SYNC_KEY)); }catch(e){}
+let syncMsg=sync?'연결됨':'', pushTimer=null;
+function setSyncMsg(t){ syncMsg=t; const el=document.getElementById('syncst'); if(el) el.textContent=t; }
+async function rpc(fn,body,cfg=sync){
+  const r=await fetch(cfg.url.replace(/\/$/,'')+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'Content-Type':'application/json',apikey:cfg.key,Authorization:'Bearer '+cfg.key},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const t=await r.text(); return t?JSON.parse(t):null;
+}
+function schedulePush(){ if(!sync) return; clearTimeout(pushTimer); setSyncMsg('저장 중...'); pushTimer=setTimeout(push,800); }
+async function push(){
+  pushTimer=null;
+  try{ await rpc('bob_set',{p_code:sync.code,p_data:{items:S.items,settings:S.settings,updated:S.updated}}); const d=new Date(); setSyncMsg(`동기화됨 (${p2(d.getHours())}:${p2(d.getMinutes())})`); }
+  catch(e){ setSyncMsg('동기화 실패 - 인터넷 연결을 확인해 주세요.'); }
+}
+function busy(){ return $('#modal').classList.contains('show') || /INPUT/.test(document.activeElement.tagName); }
+function applyRemote(d){
+  S.items=d.items||[]; S.settings={...S.settings,...(d.settings||{})}; S.updated=d.updated||Date.now();
+  localStorage.setItem(KEY,JSON.stringify(S));
+}
+async function pull(){
+  if(!sync||pushTimer||busy()) return;
+  try{
+    const d=await rpc('bob_get',{p_code:sync.code});
+    if(d&&d.updated>(S.updated||0)){ applyRemote(d); render(); setSyncMsg('다른 기기의 기록을 불러왔어요.'); }
+    else if(!d||d.updated<(S.updated||0)) push();
+    else setSyncMsg('동기화됨');
+  }catch(e){ setSyncMsg('동기화 실패 - 인터넷 연결을 확인해 주세요.'); }
+}
+async function connectSync(){
+  const cfg={url:$('#sUrl').value.trim(),key:$('#sKey').value.trim(),code:$('#sCode').value.trim()};
+  if(!/^https:\/\/.+/.test(cfg.url)) return toast('Supabase 주소(https://...)를 입력해 주세요.');
+  if(!cfg.key) return toast('anon 키를 입력해 주세요.');
+  if(cfg.code.length<16) return toast('동기화 코드는 16자 이상이어야 해요. 만들기 버튼을 눌러 보세요.');
+  let remote;
+  try{ remote=await rpc('bob_get',{p_code:cfg.code},cfg); }
+  catch(e){ return toast('연결하지 못했어요. 주소, 키, SQL 실행 여부를 확인해 주세요.'); }
+  const finish=async(useRemote)=>{
+    sync=cfg; localStorage.setItem(SYNC_KEY,JSON.stringify(cfg));
+    if(useRemote){ snap(); applyRemote(remote); } else { S.updated=Date.now(); localStorage.setItem(KEY,JSON.stringify(S)); await push(); }
+    closeModal(); render(); toast('동기화를 켰어요.');
+  };
+  if(remote&&remote.items){
+    modal(`<h2 class="serif">서버에 기록이 있어요</h2><p style="font-size:15px;line-height:1.6;color:var(--soft);margin-bottom:24px">이 코드로 저장된 기록(${remote.items.length}건)이 이미 있어요. 어떻게 할까요?</p>
+    <div style="display:grid;gap:8px"><button class="btn primary" id="useR">서버 기록 불러오기</button><button class="btn danger" id="useL">이 기기 기록으로 덮어쓰기</button><button class="btn ghost" data-act="close">취소</button></div>`);
+    $('#useR').onclick=()=>finish(true); $('#useL').onclick=()=>finish(false);
+  } else finish(false);
+}
+function newCode(){ const a=new Uint8Array(24); crypto.getRandomValues(a); return Array.from(a,x=>'abcdefghijkmnpqrstuvwxyz23456789'[x%32]).join(''); }
+
+/* ===== 되돌리기 ===== */
+const undoStack=[];
+function snap(){ undoStack.push(JSON.stringify({items:S.items,notified:S.notified||[]})); if(undoStack.length>30) undoStack.shift(); updateUndo(); }
+function undo(){
+  const s=undoStack.pop(); if(!s) return;
+  const d=JSON.parse(s); S.items=d.items; S.notified=d.notified; save(); updateUndo(); render(); toast('되돌렸어요.');
+}
+function updateUndo(){ document.querySelectorAll('.undo').forEach(b=>b.classList.toggle('show',undoStack.length>0)); }
+function demo(){
+  const n = Date.now();
+  const mk=(name,price,ago,st,dAgo,bought)=>({id:uid(),name,price,created:n-ago*H,ends:n-ago*H+72*H,status:st,decided:dAgo==null?null:n-dAgo*H,bought:!!bought,boughtAt:bought?n-dAgo*H:null,demo:true});
+  return [mk('무선 이어폰',189000,20,'waiting')];
+}
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+
+/* ===== 도우미 ===== */
+const $ = s => document.querySelector(s);
+const won = n => Math.round(n).toLocaleString('ko-KR')+'원';
+const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const p2 = n => String(n).padStart(2,'0');
+const fmtD = t => { if(!t) return '-'; const d=new Date(t); return `${d.getFullYear()}.${p2(d.getMonth()+1)}.${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`; };
+const cd = ms => { if(ms<=0) return '00:00:00'; const s=Math.floor(ms/1000); return `${p2(Math.floor(s/3600))}:${p2(Math.floor(s%3600/60))}:${p2(s%60)}`; };
+const isReady = i => i.status==='waiting' && i.ends<=Date.now();
+const pct = i => Math.min(100,Math.max(0,(Date.now()-i.created)/(i.ends-i.created)*100));
+const startDay = t => { const d=new Date(t); d.setHours(0,0,0,0); return d.getTime(); };
+const startWeek = t => startDay(t) - ((new Date(t).getDay()+6)%7)*DAY;
+const startMonth = t => { const d=new Date(t); return new Date(d.getFullYear(),d.getMonth(),1).getTime(); };
+const ic = {
+  home:'<path d="M3 11l9-8 9 8M5 10v10h14V10"/>', wait:'<path d="M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>', chart:'<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',
+  edit:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>', trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>', dl:'<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>', out:'<path d="M9 21H5V3h4M16 17l5-5-5-5M21 12H9"/>', check:'<path d="M5 12l5 5 9-10"/>'
+};
+const svg = k => `<svg viewBox="0 0 24 24">${ic[k]}</svg>`;
+function toast(t,undoable){
+  const d=document.createElement('div'), s=document.createElement('span'); s.textContent=t; d.appendChild(s);
+  if(undoable){ const b=document.createElement('button'); b.textContent='되돌리기'; b.className='tundo'; b.onclick=()=>{ d.remove(); undo(); }; d.appendChild(b); }
+  $('#toast').appendChild(d); setTimeout(()=>d.remove(),undoable?7000:4500);
+}
+
+/* ===== 통계 계산 ===== */
+function sum(range){
+  const from = range==='week'?startWeek(Date.now()):range==='month'?startMonth(Date.now()):0;
+  const r={bye:0,byeN:0,buy:0,buyN:0,got:0,gotN:0,wait:0,ready:0};
+  S.items.forEach(i=>{
+    if(i.status==='waiting'){ isReady(i)?r.ready++:r.wait++; return; }
+    if(i.decided>=from){ if(i.status==='bye'){r.bye+=i.price;r.byeN++;} else {r.buy+=i.price;r.buyN++;} }
+    if(i.status==='buy' && i.bought && (i.boughtAt||i.decided)>=from){ r.got+=i.price; r.gotN++; }
+  });
+  return r;
+}
+function cheer(){
+  const a=sum('all'), w=sum('week');
+  if(!S.items.length) return '첫 상품을 등록하고, 천천히 생각해 볼까요?';
+  if(a.ready) return `고민이 끝난 상품이 ${a.ready}개 있어요. 차분히 결정해 볼 시간이에요.`;
+  if(!a.byeN && !a.buyN) return '고민 중인 상품이 기다리고 있어요. 시간이 답을 알려줄 거예요.';
+  if(w.byeN>=3) return `이번 주에만 ${w.byeN}번 마음을 내려놓았어요. 정말 잘하고 있어요.`;
+  if(w.bye>0) return `이번 주 ${won(w.bye)}만큼 신중하게 선택했어요.`;
+  if(a.bye>=100000) return `지금까지 ${won(a.bye)}의 충동을 지나보냈어요.`;
+  return '오늘도 나에게 꼭 필요한 것만 담아 봐요.';
+}
+function analysis(){
+  const a=sum('all'), m=sum('month'), n=a.byeN+a.buyN, out=[];
+  if(!n) return ['아직 결정한 기록이 없어요. 고민이 끝난 상품을 BUY 또는 BYE로 정리하면 분석이 시작돼요.'];
+  const r=Math.round(a.byeN/n*100);
+  out.push(r>=70?`결정한 상품의 ${r}%를 포기했어요. 매우 신중한 소비 습관이에요.`:r>=40?`BYE 비율이 ${r}%예요. 사고 싶은 마음과 필요 사이의 균형이 좋아요.`:`BYE 비율이 ${r}%로 낮은 편이에요. 고민 기간을 48~72시간으로 늘려 보면 어떨까요?`);
+  if(a.byeN) out.push(`BYE한 상품의 평균 가격은 ${won(a.bye/a.byeN)}이에요.`);
+  if(a.buyN>a.gotN) out.push(`BUY로 결정했지만 구매 완료를 기록하지 않은 상품이 ${a.buyN-a.gotN}개 있어요.`);
+  const g=S.settings.goal;
+  if(g>0){ const x=m.got/g; out.push(x>1?`이번 달 구매액이 목표를 ${won(m.got-g)} 넘었어요.`:x>=.8?`이번 달 목표의 ${Math.round(x*100)}%를 사용했어요. 남은 날은 조금 더 천천히.`:`이번 달 목표 안에서 잘 지내고 있어요. (${Math.round(x*100)}% 사용)`); }
+  else out.push('설정에서 월간 소비 목표를 정하면 목표 대비 분석도 볼 수 있어요.');
+  out.push("구매 포기 금액은 '쓰지 않은 돈'을 기록한 숫자이며, 실제 저축액과는 다릅니다.");
+  return out;
+}
+function bars(mode){
+  const res=[], now=Date.now();
+  const add=(label,from,to)=>{ let bye=0,buy=0; S.items.forEach(i=>{ if(i.status!=='waiting'&&i.decided>=from&&i.decided<to){ i.status==='bye'?bye+=i.price:buy+=i.price; } }); res.push({label,bye,buy}); };
+  if(mode==='day'){ for(let k=6;k>=0;k--){ const f=startDay(now)-k*DAY, d=new Date(f); add(`${d.getMonth()+1}/${d.getDate()}`,f,f+DAY); } }
+  else { const b=new Date(now); for(let k=5;k>=0;k--){ const f=new Date(b.getFullYear(),b.getMonth()-k,1), t=new Date(b.getFullYear(),b.getMonth()-k+1,1); add(`${f.getMonth()+1}월`,f.getTime(),t.getTime()); } }
+  return res;
+}
+
+/* ===== 화면 ===== */
+const ui = {range:'month', bar:'day', filter:'all', sort:'latest', q:''};
+const NAV=[['home','/','홈'],['wait','/wait','고민중'],['list','/history','기록'],['chart','/stats','통계'],['gear','/settings','설정']];
+
+function card(i, tools){
+  const r=isReady(i), p=r?100:pct(i);
+  return `<div class="card" data-id="${i.id}"><div class="between"><div style="min-width:0;flex:1"><div class="ell" style="font-size:17px;font-weight:500">${esc(i.name)}</div><div class="price serif">${won(i.price)}</div></div>
+  <div class="row" style="flex-wrap:nowrap;gap:2px">${r?'<span class="pill" style="background:var(--blush)">결정 대기</span>':`<span class="serif price cd" data-end="${i.ends}" style="font-variant-numeric:tabular-nums">${cd(i.ends-Date.now())}</span>`}
+  ${tools?`<button class="icon" data-act="edit" data-id="${i.id}" aria-label="수정">${svg('edit')}</button><button class="icon" data-act="del" data-id="${i.id}" aria-label="삭제">${svg('trash')}</button>`:''}</div></div>
+  <div class="bar ${r?'ready':''}"><i data-created="${i.created}" data-end="${i.ends}" style="width:${p}%"></i></div>
+  <div class="muted" style="margin-top:8px">${r?'고민이 끝났어요':`고민 ${Math.floor(p)}% 진행`}</div>
+  ${tools&&r?`<div class="grid3" style="margin-top:16px"><button class="btn primary" data-act="buy" data-id="${i.id}">BUY</button><button class="btn accent" data-act="bye" data-id="${i.id}">BYE</button><button class="btn ghost" data-act="hold" data-id="${i.id}">HOLD +24h</button></div>`:''}</div>`;
+}
+const empty=(t,d,btn)=>`<div class="card empty"><b>${t}</b>${d}${btn?`<div style="margin-top:20px"><button class="btn primary" data-act="add">상품 등록</button></div>`:''}</div>`;
+const title=(en,ko)=>`<h1 class="serif">${en}</h1><p class="sub">${ko}</p>`;
+
+const views = {
+  '/'(){
+    const a=sum('all'), pending=a.wait+a.ready;
+    const recent=[...S.items].sort((x,y)=>y.created-x.created).slice(0,4);
+    return `<h1 class="serif" style="font-size:clamp(34px,6vw,58px)">Less, but better.</h1><p class="sub" style="font-size:16px">오늘도 나에게 필요한 것만, 천천히.</p>
+    <div class="hero"><div style="font-size:14px;font-weight:500">누적 구매 포기 금액</div><div class="big serif">${won(a.bye)}</div>
+    <div style="font-size:14px;opacity:.8;max-width:420px;line-height:1.6">${cheer()}</div><div class="muted" style="margin-top:20px;opacity:.7">쓰지 않기로 한 금액의 기록이며, 실제 저축액과는 구분돼요.</div></div>
+    <div class="grid3">${[['고민 중',pending],['BUY',a.buyN],['BYE',a.byeN]].map(([l,v])=>`<div class="card"><div class="muted">${l}</div><div class="serif" style="font-size:38px;font-weight:600;margin-top:6px">${v}</div></div>`).join('')}</div>
+    <div class="between" style="margin:36px 0 16px;align-items:flex-end"><h2 class="serif" style="margin:0">Recently added</h2><a href="#/wait" class="muted">고민 목록 보기</a></div>
+    ${recent.length?recent.map(i=>i.status==='waiting'?card(i,false):`<div class="card between" style="align-items:center"><div><div style="font-weight:500">${esc(i.name)}</div><div class="price serif">${won(i.price)}</div></div><span class="pill ${i.status}">${i.status.toUpperCase()}</span></div>`).join(''):empty('아직 비어 있어요','사고 싶은 물건을 등록하면 고민 타이머가 시작돼요.',true)}`;
+  },
+  '/wait'(){
+    const l=S.items.filter(i=>i.status==='waiting').sort((a,b)=>a.ends-b.ends), r=l.filter(isReady).length;
+    return title('Cooling off', r?`결정을 기다리는 상품이 ${r}개 있어요.`:'충분히 생각한 뒤에 결정해요.')+(l.length?l.map(i=>card(i,true)).join(''):empty('고민 중인 상품이 없어요','사고 싶은 물건이 생기면 먼저 여기에 담아 두세요.',true));
+  },
+  '/history'(){
+    const dec=S.items.filter(i=>i.status!=='waiting'), kw=ui.q.trim().toLowerCase();
+    const l=dec.filter(i=>ui.filter==='all'||i.status===ui.filter).filter(i=>!kw||i.name.toLowerCase().includes(kw)).sort((a,b)=>ui.sort==='price'?b.price-a.price:b.decided-a.decided);
+    const ch=(g,v,t)=>`<button class="chip ${ui[g]===v?'on':''}" data-act="set" data-g="${g}" data-v="${v}">${t}</button>`;
+    return title('History','내가 내린 결정들')+`<div style="position:relative;margin-bottom:12px"><span style="position:absolute;left:14px;top:12px;color:var(--soft)">${svg('search')}</span><input type="search" id="q" style="padding-left:44px" placeholder="상품명 검색" value="${esc(ui.q)}"></div>
+    <div class="between" style="margin-bottom:20px;align-items:center"><div class="row">${ch('filter','all','전체')}${ch('filter','buy','BUY')}${ch('filter','bye','BYE')}</div><div class="row">${ch('sort','latest','최신순')}${ch('sort','price','가격순')}</div></div>
+    <div id="hlist">${histList(dec,l)}</div>`;
+  },
+  '/stats'(){
+    const s=sum(ui.range), a=sum('all'), m=sum('month'), n=s.buyN+s.byeN, g=S.settings.goal;
+    const b=bars(ui.bar), max=Math.max(1,...b.map(x=>Math.max(x.bye,x.buy)));
+    const ch=(g,v,t,x='')=>`<button class="chip ${ui[g]===v?'on':''}" ${x} data-act="set" data-g="${g}" data-v="${v}">${t}</button>`;
+    const bp=g>0?Math.min(100,m.got/g*100):0;
+    return title('Insights','기록으로 보는 나의 소비 습관')+`<div class="row" style="margin-bottom:20px">${ch('range','week','이번 주')}${ch('range','month','이번 달')}${ch('range','all','전체')}</div>
+    <div class="hero" style="padding:26px"><div style="font-size:14px">구매 포기 금액 (${s.byeN}건)</div><div class="serif" style="font-size:44px;font-weight:600;margin:6px 0">${won(s.bye)}</div><div class="muted" style="opacity:.7">실제 저축액이 아닌, 쓰지 않기로 한 금액이에요. 누적: ${won(a.bye)}</div></div>
+    <div class="grid2"><div class="card"><div class="muted">구매 결정 금액</div><div class="serif price" style="margin-top:6px">${won(s.buy)}</div><div class="muted">${s.buyN}건</div></div><div class="card"><div class="muted">실제 구매 완료 금액</div><div class="serif price" style="margin-top:6px">${won(s.got)}</div><div class="muted">${s.gotN}건</div></div></div>
+    <div class="grid2 keep"><div class="card"><h2 class="serif" style="font-size:20px">BUY vs BYE</h2>${n?`<div class="donut" style="background:conic-gradient(var(--sky) 0 ${s.buyN/n*100}%,var(--blush-d) 0)"></div><div style="text-align:center;font-size:14px">BUY ${Math.round(s.buyN/n*100)}% · BYE ${Math.round(s.byeN/n*100)}%</div>`:'<div class="empty">이 기간에는 결정한 기록이 없어요.</div>'}</div>
+    <div class="card"><h2 class="serif" style="font-size:20px">월간 소비 목표</h2>${g>0?`<div class="serif" style="font-size:30px;font-weight:600">${won(m.got)}</div><div class="muted">목표 ${won(g)} 중 이번 달 실제 구매액</div><div class="bar ${m.got>g?'ready':''}"><i style="width:${bp}%"></i></div><div class="muted" style="margin-top:8px">${m.got>g?`목표를 ${won(m.got-g)} 초과했어요`:`${won(g-m.got)} 남았어요`}</div>`:'<div class="empty">설정에서 월간 소비 목표를 정해 보세요.</div>'}</div></div>
+    <div class="card"><div class="between" style="align-items:center"><h2 class="serif" style="font-size:20px;margin:0">소비 변화</h2><div class="row">${ch('bar','day','일별')}${ch('bar','month','월별')}</div></div>
+    <div class="chart">${b.map(x=>`<div class="col"><div class="pair" title="BYE ${won(x.bye)} / BUY ${won(x.buy)}"><i style="height:${x.bye/max*100}%;background:var(--blush-d)"></i><i style="height:${x.buy/max*100}%;background:var(--sky)"></i></div></div>`).join('')}</div>
+    <div class="labels">${b.map(x=>`<span>${x.label}</span>`).join('')}</div><div class="muted" style="margin-top:12px">분홍 BYE · 하늘 BUY (최대 ${won(max)})</div></div>
+    <div class="card"><h2 class="serif" style="font-size:20px">자동 분석</h2><ul class="msg" style="padding:0">${analysis().map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>`;
+  },
+  '/settings'(){
+    const st=S.settings, demoN=S.items.filter(i=>i.demo).length;
+    return title('Settings','나에게 맞게 조정하기')+`
+    <div class="card"><h2 class="serif" style="font-size:20px">계정</h2><div class="muted" style="font-size:14px">이 브라우저에만 저장되는 개인용 기록이에요. 로그인은 필요 없어요.</div></div>
+    <div class="card"><h2 class="serif" style="font-size:20px">기본 고민 기간</h2><div class="row">${[24,48,72].map(h=>`<button class="chip ${st.hours===h?'on':''}" style="flex:1" data-act="hours" data-v="${h}">${h}시간</button>`).join('')}</div><div class="muted" style="margin-top:12px">새로 등록하는 상품부터 적용돼요.</div></div>
+    <div class="card"><h2 class="serif" style="font-size:20px">고민 종료 알림</h2><div class="between" style="align-items:center"><span style="font-size:14px">고민이 끝나면 화면 안에서 알려주기</span><button class="switch ${st.notify?'on':''}" role="switch" aria-checked="${st.notify}" data-act="notify"></button></div></div>
+    <div class="card"><h2 class="serif" style="font-size:20px">월간 소비 목표</h2><div class="row" style="flex-wrap:nowrap"><input type="text" id="goal" inputmode="numeric" placeholder="0" value="${st.goal?st.goal.toLocaleString('ko-KR'):''}"><button class="btn primary" data-act="goal">저장</button></div><div class="muted" style="margin-top:12px">0 또는 빈칸으로 저장하면 목표가 해제돼요.</div></div>
+    <div class="card"><h2 class="serif" style="font-size:20px">기기 동기화</h2>
+      ${sync?`<div style="font-size:14px;line-height:1.7">연결됨 · 코드 <b style="word-break:break-all">${esc(sync.code)}</b></div><div class="muted" id="syncst" style="margin:6px 0 14px">${esc(syncMsg)}</div><div class="muted" style="margin-bottom:14px">다른 기기에서 같은 주소·키·코드를 입력하면 같은 기록을 볼 수 있어요.</div><button class="btn ghost" data-act="syncoff">동기화 해제</button>`
+      :`<div class="muted" style="margin-bottom:14px;line-height:1.6">PC와 폰에서 같은 기록을 보려면 Supabase를 연결하세요. 설정 방법은 sync-setup.md를 봐 주세요. 연결하지 않으면 이 기기에만 저장돼요.</div>
+      <div class="field"><label class="l" for="sUrl">Supabase 주소</label><input type="text" id="sUrl" placeholder="https://xxxx.supabase.co" autocapitalize="off" autocomplete="off"></div>
+      <div class="field"><label class="l" for="sKey">anon 키</label><input type="text" id="sKey" placeholder="eyJ..." autocapitalize="off" autocomplete="off"></div>
+      <div class="field"><label class="l" for="sCode">동기화 코드 (비밀번호처럼 보관)</label><div class="row" style="flex-wrap:nowrap"><input type="text" id="sCode" autocapitalize="off" autocomplete="off" placeholder="16자 이상"><button class="btn ghost" data-act="syncgen" style="white-space:nowrap">만들기</button></div></div>
+      <button class="btn primary" style="width:100%" data-act="syncon">연결하기</button>`}</div>
+    <div class="card"><h2 class="serif" style="font-size:20px">데이터</h2><div class="row"><button class="btn ghost" data-act="csv" style="flex:1">${svg('dl')}CSV로 내보내기</button><button class="btn ghost" data-act="demo" style="flex:1" ${demoN?'':'disabled'}>${svg('trash')}가상 데이터 제거${demoN?` (${demoN})`:''}</button></div></div>`;
+  }
+};
+function histList(dec,l){
+  if(!dec.length) return empty('아직 기록이 없어요','고민이 끝난 상품을 BUY 또는 BYE로 결정하면 여기에 쌓여요.');
+  if(!l.length) return empty('검색 결과가 없어요','다른 검색어나 필터를 사용해 보세요.');
+  return l.map(i=>`<div class="card"><div class="between"><div style="min-width:0"><div class="row" style="flex-wrap:nowrap"><span class="pill ${i.status}">${i.status.toUpperCase()}</span><span style="font-weight:500">${esc(i.name)}</span></div><div class="price serif" style="margin-top:4px">${won(i.price)}</div></div>
+  <div class="row" style="flex-wrap:nowrap;gap:2px"><button class="icon" data-act="edit" data-id="${i.id}" aria-label="수정">${svg('edit')}</button><button class="icon" data-act="del" data-id="${i.id}" aria-label="삭제">${svg('trash')}</button></div></div>
+  <div class="between muted" style="margin-top:12px;align-items:center"><span>등록 ${fmtD(i.created)} · 결정 ${fmtD(i.decided)}</span>${i.status==='buy'?`<button class="chip ${i.bought?'on':''}" style="padding:6px 12px;font-size:12px" data-act="bought" data-id="${i.id}">${i.bought?'구매 완료':'구매 완료로 기록'}</button>`:''}</div></div>`).join('');
+}
+
+function route(){ return (location.hash.slice(1)||'/'); }
+function render(){
+  const r=views[route()]?route():'/';
+  $('#view').style.animation='none'; void $('#view').offsetWidth; $('#view').style.animation='';
+  $('#view').innerHTML=views[r]();
+  const rd=S.items.filter(isReady).length;
+  $('#side').innerHTML=NAV.map(([k,h,t])=>`<a href="#${h}" class="${h===r?'on':''}">${svg(k)}${t}${h==='/wait'&&rd?`<span class="dot">${rd}</span>`:''}</a>`).join('');
+  $('#tabbar').innerHTML=NAV.map(([k,h,t])=>`<a href="#${h}" class="${h===r?'on':''}">${svg(k)}${t}</a>`).join('');
+}
+window.addEventListener('hashchange',render);
+
+/* ===== 모달 ===== */
+function modal(html){ $('#modal').innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}</div>`; $('#modal').classList.add('show'); const f=$('#modal input'); if(f) f.focus(); }
+function closeModal(){ $('#modal').classList.remove('show'); $('#modal').innerHTML=''; }
+$('#modal').addEventListener('mousedown',e=>{ if(e.target.id==='modal') closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+function confirmBox(title,msg,okLabel,cb,danger=true,cancelLabel='취소'){
+  modal(`<h2 class="serif">${title}</h2><p style="font-size:15px;line-height:1.6;color:var(--soft);margin-bottom:24px">${msg}</p><div class="row" style="flex-wrap:nowrap"><button class="btn ghost" style="flex:1" data-act="close">${cancelLabel}</button><button class="btn ${danger?'danger':'primary'}" style="flex:1" id="ok">${okLabel}</button></div>`);
+  $('#ok').onclick=()=>{ closeModal(); cb(); };
+}
+const num = s => Number(String(s).replace(/[^0-9]/g,''));
+function validate(n,p){
+  const e={}; if(!n.trim()) e.n='상품명을 입력해 주세요.'; else if(n.length>100) e.n='상품명은 100자 이하로 입력해 주세요.';
+  const v=num(p); if(!v) e.p='가격을 1원 이상으로 입력해 주세요.'; else if(v>100000000) e.p='가격은 1억 원 이하로 입력해 주세요.';
+  return e;
+}
+function form(item){
+  const dec=item&&item.status!=='waiting';
+  modal(`<h2 class="serif">${!item?'상품 등록':dec?'기록 수정':'상품 수정'}</h2>
+  <div class="field"><label class="l" for="fn">상품명</label><input type="text" id="fn" maxlength="100" placeholder="예) 무선 이어폰" value="${item?esc(item.name):''}"><div class="err" id="en"></div></div>
+  <div class="field"><label class="l" for="fp">가격 (원)</label><input type="text" id="fp" inputmode="numeric" placeholder="0" value="${item?item.price.toLocaleString('ko-KR'):''}"><div class="err" id="ep"></div></div>
+  ${dec?`<div class="field"><span class="l" style="display:block">결정 내역</span><div class="grid2"><button class="chip ${item.status==='buy'?'on':''}" data-act="pick" data-v="buy" id="pb">BUY</button><button class="chip ${item.status==='bye'?'on':''}" data-act="pick" data-v="bye" id="py">BYE</button></div></div>
+  <label id="bl" class="row" style="margin-bottom:18px;font-size:14px;display:${item.status==='buy'?'flex':'none'}"><input type="checkbox" id="fb" ${item.bought?'checked':''} style="width:18px;height:18px;accent-color:var(--navy)">실제 구매를 완료했어요</label>`:''}
+  ${!item?`<div class="muted" style="margin-bottom:18px">등록하는 순간 ${S.settings.hours}시간의 고민 타이머가 시작돼요.</div>`:''}
+  <button class="btn primary" style="width:100%" id="fs">${item?'저장':'등록하고 고민 시작'}</button>`);
+  let st=item&&item.status;
+  $('#fp').oninput=e=>{ const n=num(e.target.value); e.target.value=n?n.toLocaleString('ko-KR'):''; };
+  document.querySelectorAll('[data-act=pick]').forEach(b=>b.onclick=()=>{ st=b.dataset.v; $('#pb').classList.toggle('on',st==='buy'); $('#py').classList.toggle('on',st==='bye'); $('#bl').style.display=st==='buy'?'flex':'none'; });
+  const submit=()=>{
+    const n=$('#fn').value, p=$('#fp').value, e=validate(n,p);
+    $('#en').textContent=e.n||''; $('#ep').textContent=e.p||''; $('#fn').classList.toggle('bad',!!e.n); $('#fp').classList.toggle('bad',!!e.p);
+    if(e.n||e.p) return;
+    snap();
+    if(!item){ const t=Date.now(); S.items.unshift({id:uid(),name:n.trim(),price:num(p),created:t,ends:t+S.settings.hours*H,status:'waiting',decided:null,bought:false,boughtAt:null,demo:false}); toast(`등록했어요. ${S.settings.hours}시간 동안 천천히 생각해 봐요.`); }
+    else{
+      item.name=n.trim(); item.price=num(p);
+      if(dec){ if(st!==item.status){ item.status=st; item.decided=Date.now(); if(st==='bye'){item.bought=false;item.boughtAt=null;} }
+        if(st==='buy'){ const b=$('#fb').checked; if(b!==item.bought){ item.bought=b; item.boughtAt=b?Date.now():null; } } }
+    }
+    save(); closeModal(); render();
+  };
+  $('#fs').onclick=submit;
+  $('#modal').onkeydown=e=>{ if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.type==='text') submit(); };
+}
+
+/* ===== 클릭 처리 ===== */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const a=b.dataset.act, it=S.items.find(i=>i.id===b.dataset.id);
+  if(a==='add') form();
+  else if(a==='close') closeModal();
+  else if(a==='edit'&&it) form(it);
+  else if(a==='undo') undo();
+  else if(a==='del'&&it) confirmBox(it.status==='waiting'?'상품 삭제':'기록 삭제',`'${esc(it.name)}'을(를) 삭제할까요? 통계도 함께 다시 계산돼요.`,'삭제',()=>{ snap(); S.items=S.items.filter(x=>x!==it); save(); render(); toast('삭제했어요.',true); });
+  else if(a==='bye'&&it){ snap(); it.status='bye'; it.decided=Date.now(); save(); render(); toast(`${won(it.price)}을(를) 지켰어요.`,true); }
+  else if(a==='buy'&&it){ snap(); it.status='buy'; it.decided=Date.now(); save(); render();
+    confirmBox('구매 결정 완료',`'${esc(it.name)}'을(를) 실제로 구매하셨나요? 구매 기록에서 언제든 바꿀 수 있어요.`,'구매 완료로 기록',()=>{ snap(); it.bought=true; it.boughtAt=Date.now(); save(); render(); },false,'나중에'); }
+  else if(a==='hold'&&it){ snap(); it.ends=Date.now()+24*H; S.notified=(S.notified||[]).filter(x=>x!==it.id); save(); render(); toast('24시간 더 고민해 봐요.',true); }
+  else if(a==='bought'&&it){ snap(); it.bought=!it.bought; it.boughtAt=it.bought?Date.now():null; save(); render(); }
+  else if(a==='syncon') connectSync();
+  else if(a==='syncgen') $('#sCode').value=newCode();
+  else if(a==='syncoff') confirmBox('동기화 해제','이 기기에서 동기화를 끌게요. 이 기기와 서버의 기록은 그대로 남아요.','해제',()=>{ sync=null; localStorage.removeItem(SYNC_KEY); setSyncMsg(''); render(); toast('동기화를 해제했어요.'); },false);
+  else if(a==='set'){ ui[b.dataset.g]=b.dataset.v; render(); }
+  else if(a==='hours'){ S.settings.hours=+b.dataset.v; save(); render(); }
+  else if(a==='notify'){ S.settings.notify=!S.settings.notify; save(); render(); }
+  else if(a==='goal'){ S.settings.goal=num($('#goal').value); save(); toast(S.settings.goal?'월간 소비 목표를 저장했어요.':'월간 소비 목표를 해제했어요.'); render(); }
+  else if(a==='demo') confirmBox('가상 데이터 제거','처음에 들어 있던 샘플 상품과 기록을 모두 지워요. 직접 등록한 데이터는 그대로 남아요.','제거',()=>{ snap(); S.items=S.items.filter(i=>!i.demo); save(); render(); toast('가상 데이터를 제거했어요.',true); });
+  else if(a==='csv') exportCsv();
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='q'){ ui.q=e.target.value; const dec=S.items.filter(i=>i.status!=='waiting'), kw=ui.q.trim().toLowerCase();
+    const l=dec.filter(i=>ui.filter==='all'||i.status===ui.filter).filter(i=>!kw||i.name.toLowerCase().includes(kw)).sort((a,b)=>ui.sort==='price'?b.price-a.price:b.decided-a.decided);
+    $('#hlist').innerHTML=histList(dec,l); }
+  if(e.target.id==='goal'){ const n=num(e.target.value); e.target.value=n?n.toLocaleString('ko-KR'):''; }
+});
+function exportCsv(){
+  if(!S.items.length) return toast('내보낼 데이터가 없어요.');
+  const q=v=>`"${String(v).replace(/"/g,'""')}"`, lab={waiting:'고민 중',buy:'BUY',bye:'BYE'};
+  const rows=[['상품명','가격','상태','등록일시','고민종료일시','결정일시','구매완료'],...S.items.map(i=>[i.name,i.price,lab[i.status],fmtD(i.created),fmtD(i.ends),fmtD(i.decided),i.status==='buy'?(i.bought?'완료':'미완료'):''])];
+  const blob=new Blob(['﻿'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`buy-or-bye-${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* ===== 1초마다: 남은 시간 갱신 / 고민 종료 감지 ===== */
+setInterval(()=>{
+  const n=Date.now();
+  document.querySelectorAll('.cd').forEach(el=>el.textContent=cd(+el.dataset.end-n));
+  document.querySelectorAll('.bar i[data-created]').forEach(el=>{ const c=+el.dataset.created,d=+el.dataset.end; el.style.width=Math.min(100,(n-c)/(d-c)*100)+'%'; });
+  const fresh=S.items.filter(i=>isReady(i)&&!(S.notified||[]).includes(i.id));
+  if(fresh.length){
+    S.notified=[...(S.notified||[]),...fresh.map(i=>i.id)]; save();
+    if(S.settings.notify) toast(fresh.length===1?`'${fresh[0].name}'의 고민이 끝났어요. 이제 결정해 볼까요?`:`${fresh.length}개 상품의 고민이 끝났어요. 결정할 시간이에요.`);
+    if(!$('#modal').classList.contains('show') && document.activeElement.tagName!=='INPUT') render();
+  }
+},1000);
+
+render();
+pull();
+setInterval(pull,20000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) pull(); });
+</script>
+</body>
+</html>
